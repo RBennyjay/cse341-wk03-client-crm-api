@@ -1,5 +1,4 @@
-// swagger.js
-const swaggerJSDoc = require('swagger-jsdoc');
+const swaggerJsdoc = require('swagger-jsdoc');
 
 const options = {
   definition: {
@@ -12,12 +11,16 @@ const options = {
     servers: [
       {
         url: 'http://localhost:8080',
+        description: 'Local development server',
+      },
+      {
+        url: 'https://client-crm-api.onrender.com',
+        description: 'Production server',
       },
     ],
   },
-  apis: ['./routes/*.js'], // Path to the API docs
+  apis: ['./routes/*.js'], // Adjust if your route files are elsewhere
 };
 
-const swaggerSpec = swaggerJSDoc(options);
-
+const swaggerSpec = swaggerJsdoc(options);
 module.exports = swaggerSpec;
