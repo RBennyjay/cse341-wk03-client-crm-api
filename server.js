@@ -16,13 +16,30 @@ const port = process.env.PORT || 8080;
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
+
+// Root route
+app.get('/', (req, res) => {
+  res.send('Welcome to the Client CRM API. Visit /api-docs for Swagger docs.');
+});
+
+// Swagger Docs
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+// Routes
 app.use('/contacts', contactRoutes);
 
-// DB Connection
+// Catch-all for undefined routes
+app.use((req, res) => {
+  res.status(404).json({ error: 'Route not found' });
+});
+
+// DB Connection and Server Start
 mongoose
   .connect(process.env.MONGODB_URI)
   .then(() => {
-    app.listen(port, () => console.log(`✅ Server running on port ${port}`));
+    console.log('✅ Connected to MongoDB');
+    app.listen(port, () =>
+      console.log(`✅ Server running on port ${port}`)
+    );
   })
   .catch((err) => console.error('❌ MongoDB connection error:', err));
