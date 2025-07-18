@@ -1,7 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const controller = require('../controllers/contacts');
 const { body } = require('express-validator');
+
+const {
+  getAll,
+  getSingle,
+  createContact,
+  updateContact,
+  deleteContact,
+  } = require('../controllers/contacts');
 
 /**
  * @swagger
@@ -69,7 +76,7 @@ const { body } = require('express-validator');
  *               items:
  *                 $ref: '#/components/schemas/Contact'
  */
-router.get('/', controller.getAll);
+router.get('/', getAll);
 
 /**
  * @swagger
@@ -94,7 +101,7 @@ router.get('/', controller.getAll);
  *       404:
  *         description: Contact not found
  */
-router.get('/:id', controller.getSingle);
+router.get('/:id', getSingle);
 
 /**
  * @swagger
@@ -111,16 +118,18 @@ router.get('/:id', controller.getSingle);
  *     responses:
  *       201:
  *         description: Contact created successfully
+ *       400:
+ *         description: Bad request
  */
 router.post(
   '/',
   [
-    body('name').notEmpty(),
-    body('email').isEmail(),
+    body('name').notEmpty().withMessage('Name is required'),
+    body('email').isEmail().withMessage('Valid email is required'),
     body('phone').optional().isString(),
-    body('tags').optional().isArray()
+    body('tags').optional().isArray(),
   ],
-  controller.createContact
+  createContact
 );
 
 /**
@@ -145,16 +154,20 @@ router.post(
  *     responses:
  *       200:
  *         description: Contact updated successfully
+ *       400:
+ *         description: Bad request
+ *       404:
+ *         description: Contact not found
  */
 router.put(
   '/:id',
   [
-    body('name').notEmpty(),
-    body('email').isEmail(),
+    body('name').notEmpty().withMessage('Name is required'),
+    body('email').isEmail().withMessage('Valid email is required'),
     body('phone').optional().isString(),
-    body('tags').optional().isArray()
+    body('tags').optional().isArray(),
   ],
-  controller.updateContact
+  updateContact
 );
 
 /**
@@ -171,9 +184,13 @@ router.put(
  *           type: string
  *         description: Contact ID
  *     responses:
- *       200:
+ *       204:
  *         description: Contact deleted successfully
+ *       404:
+ *         description: Contact not found
  */
-router.delete('/:id', controller.deleteContact);
+router.delete('/:id', deleteContact);
+
+
 
 module.exports = router;
