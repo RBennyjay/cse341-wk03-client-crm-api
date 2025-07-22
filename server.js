@@ -7,6 +7,7 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./swagger');
 
 const contactRoutes = require('./routes/contacts');
+const appointmentRoutes = require('./routes/appointments');
 dotenv.config();
 
 const app = express();
@@ -27,6 +28,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Routes
 app.use('/contacts', contactRoutes);
+app.use('/appointments', appointmentRoutes);
 
 // Catch-all for undefined routes
 app.use((req, res) => {
