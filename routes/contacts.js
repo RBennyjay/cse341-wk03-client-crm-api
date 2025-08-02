@@ -149,8 +149,8 @@ router.put('/:id', updateContact);
  *         schema:
  *           type: string
  *     responses:
- *       200:
- *         description: Contact deleted successfully
+ *       204:
+ *         description: Contact deleted successfully (No Content)
  *       404:
  *         description: Contact not found
  */
