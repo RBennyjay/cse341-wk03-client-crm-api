@@ -117,6 +117,15 @@ router.post(
  *                 type: string
  *               phone:
  *                 type: string
+ *               company:
+ *                 type: string
+ *               notes:
+ *                 type: string
+ *               tags:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 example: ["demo", "retail"]
  *     responses:
  *       200:
  *         description: Contact updated successfully
@@ -124,6 +133,7 @@ router.post(
  *         description: Contact not found
  */
 router.put('/:id', updateContact);
+
 
 /**
  * @swagger
