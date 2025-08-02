@@ -125,7 +125,7 @@ router.post(
  *                 type: array
  *                 items:
  *                   type: string
- *                 example: ["demo", "retail"]
+ *                 example: ["string", "string"]
  *     responses:
  *       200:
  *         description: Contact updated successfully
