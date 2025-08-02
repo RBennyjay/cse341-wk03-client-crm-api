@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { body } = require('express-validator');
+const { ensureAuth } = require('../middleware/authMiddleware');
 
 const {
   getAll,
@@ -8,73 +9,27 @@ const {
   createContact,
   updateContact,
   deleteContact,
-  } = require('../controllers/contacts');
+} = require('../controllers/contacts');
+
+// 🔐 Protect all routes in this router
+router.use(ensureAuth);
 
 /**
  * @swagger
  * tags:
  *   name: Contacts
- *   description: API for managing contacts
- */
-
-/**
- * @swagger
- * components:
- *   schemas:
- *     Contact:
- *       type: object
- *       required:
- *         - name
- *         - email
- *       properties:
- *         name:
- *           type: string
- *           example: John Doe
- *         email:
- *           type: string
- *           example: john.doe@example.com
- *         phone:
- *           type: string
- *           example: "+1-234-567-8901"
- *         company:
- *           type: string
- *           example: Acme Inc.
- *         notes:
- *           type: string
- *           example: Important client from NY.
- *         tags:
- *           type: array
- *           items:
- *             type: string
- *           example: ["client", "important"]
+ *   description: API endpoints for managing contacts
  */
 
 /**
  * @swagger
  * /contacts:
  *   get:
- *     summary: Get all contacts (optionally filter by company or tags)
+ *     summary: Get all contacts
  *     tags: [Contacts]
- *     parameters:
- *       - in: query
- *         name: company
- *         schema:
- *           type: string
- *         description: Partial match for company name
- *       - in: query
- *         name: tags
- *         schema:
- *           type: string
- *         description: Partial match for any tag (comma-separated for multiple)
  *     responses:
  *       200:
  *         description: A list of contacts
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Contact'
  */
 router.get('/', getAll);
 
@@ -82,22 +37,18 @@ router.get('/', getAll);
  * @swagger
  * /contacts/{id}:
  *   get:
- *     summary: Get a contact by ID
+ *     summary: Get a single contact by ID
  *     tags: [Contacts]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
+ *         description: ID of the contact
  *         schema:
  *           type: string
- *         description: MongoDB ID of the contact
  *     responses:
  *       200:
- *         description: Contact retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Contact'
+ *         description: Contact details
  *       404:
  *         description: Contact not found
  */
@@ -114,7 +65,17 @@ router.get('/:id', getSingle);
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Contact'
+ *             type: object
+ *             required:
+ *               - name
+ *               - email
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               phone:
+ *                 type: string
  *     responses:
  *       201:
  *         description: Contact created successfully
@@ -126,8 +87,6 @@ router.post(
   [
     body('name').notEmpty().withMessage('Name is required'),
     body('email').isEmail().withMessage('Valid email is required'),
-    body('phone').optional().isString(),
-    body('tags').optional().isArray(),
   ],
   createContact
 );
@@ -136,39 +95,35 @@ router.post(
  * @swagger
  * /contacts/{id}:
  *   put:
- *     summary: Update a contact
+ *     summary: Update an existing contact
  *     tags: [Contacts]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
+ *         description: ID of the contact
  *         schema:
  *           type: string
- *         description: Contact ID
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Contact'
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               phone:
+ *                 type: string
  *     responses:
  *       200:
  *         description: Contact updated successfully
- *       400:
- *         description: Bad request
  *       404:
  *         description: Contact not found
  */
-router.put(
-  '/:id',
-  [
-    body('name').notEmpty().withMessage('Name is required'),
-    body('email').isEmail().withMessage('Valid email is required'),
-    body('phone').optional().isString(),
-    body('tags').optional().isArray(),
-  ],
-  updateContact
-);
+router.put('/:id', updateContact);
 
 /**
  * @swagger
@@ -180,17 +135,15 @@ router.put(
  *       - in: path
  *         name: id
  *         required: true
+ *         description: ID of the contact
  *         schema:
  *           type: string
- *         description: Contact ID
  *     responses:
- *       204:
+ *       200:
  *         description: Contact deleted successfully
  *       404:
  *         description: Contact not found
  */
 router.delete('/:id', deleteContact);
-
-
 
 module.exports = router;

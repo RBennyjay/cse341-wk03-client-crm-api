@@ -18,8 +18,23 @@ const options = {
         description: 'Production server',
       },
     ],
+    components: {
+      securitySchemes: {
+        cookieAuth: {
+          type: 'apiKey',
+          in: 'cookie',
+          name: 'connect.sid',
+        },
+      },
+    },
+    //  apply cookieAuth globally to all routes 
+    security: [
+      {
+        cookieAuth: [],
+      },
+    ],
   },
-  apis: ['./routes/*.js'], 
+  apis: ['./routes/*.js'],
 };
 
 const swaggerSpec = swaggerJsdoc(options);

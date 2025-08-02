@@ -6,52 +6,47 @@ const { validationResult } = require('express-validator');
 const getAll = async (req, res) => {
   try {
     const filter = {};
-
-    if (req.query.company) {
-      filter.company = req.query.company;
-    }
-
-    if (req.query.tags) {
-      const tagsArray = req.query.tags.split(','); // comma-separated tags
-      filter.tags = { $in: tagsArray };
-    }
+    if (req.query.company) filter.company = req.query.company;
+    if (req.query.tags) filter.tags = { $in: req.query.tags.split(',') };
 
     const contacts = await Contact.find(filter);
-    res.status(200).json(contacts);
+    const clean = contacts.map(doc => {
+      const obj = doc.toObject();
+      delete obj.id;
+      return obj;
+    });
+    res.status(200).json(clean);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-
-
-
-// GET single contact
 const getSingle = async (req, res) => {
   try {
     const contact = await Contact.findById(req.params.id);
     if (!contact) return res.status(404).json({ message: 'Contact not found' });
-    res.status(200).json(contact);
+    const result = contact.toObject();
+    delete result.id;
+    res.status(200).json(result);
   } catch (err) {
     res.status(404).json({ error: err.message });
   }
 };
 
-// CREATE new contact
 const createContact = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
   try {
     const contact = new Contact(req.body);
-    const result = await contact.save();
+    const result = (await contact.save()).toObject();
+    delete result.id;
     res.status(201).json(result);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 };
 
-// UPDATE contact
 const updateContact = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
@@ -59,7 +54,9 @@ const updateContact = async (req, res) => {
   try {
     const updated = await Contact.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
     if (!updated) return res.status(404).json({ message: 'Contact not found' });
-    res.status(200).json(updated);
+    const result = updated.toObject();
+    delete result.id;
+    res.status(200).json(result);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
